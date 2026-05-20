@@ -1,0 +1,105 @@
+/*
+ * Game.cpp
+ *
+ *  Created on: Apr 17, 2018
+ *      Author: VIDEOJUEGOS UTALCA
+ */
+#include <chrono>
+#include <thread>
+#include "Game.h"
+#include <algorithm>
+#include "KeyboardController.h"
+#include "RandomController.h"
+#include "SimpleController.h"
+#include "SimplePacmanController.h"
+#include "BTGhostController.h"
+#include "FSMController.h"
+#include "Ghost.h"
+#include "BlinkyController.h"
+#include "InkyController.h"
+#include "PinkyController.h"
+#include "SueController.h"
+#include "PacmanController.h"
+#include "UtilityPacmanController.h"
+#include "UtilityGhostController.h"
+
+extern bool quick;
+extern bool nogui;
+
+Game::Game():currentMap(0),
+filenames{"mazes/a.txt","mazes/b.txt","mazes/c.txt","mazes/d.txt"},
+gameState(filenames[currentMap]),
+gv(std::make_unique<GameView>(std::vector<std::string>{"images/maze-a.png","images/maze-b.png","images/maze-c.png","images/maze-d.png"})) {
+
+	// Ms. Pac-Man con controlador Utility (el mas optimo disponible)
+	auto pacman=std::make_shared<MsPacMan>(gameState.getMaze().getPacmanStart());
+	gameState.addPacMan(pacman);
+	pacmanControl=std::make_shared<UtilityPacmanController>(pacman);
+
+	std::vector<std::shared_ptr<Ghost>> ghosts;
+	for(int i=0;i<4;i++){
+		auto ghost=std::make_shared<Ghost>(gameState.getMaze().getGhostStart()[i]);
+		ghosts.push_back(ghost);
+	}
+	gameState.addGhosts(ghosts);
+
+	// Blinky (ghost 0): FSM con estados Chase/Scatter/Patrol/Frightened
+	ghostsControl.push_back(std::make_shared<FSMController>(ghosts[0]));
+
+	// Inky (ghost 1): Behaviour Tree con nodo de coordinacion con Blinky
+	ghostsControl.push_back(std::make_shared<InkyController>(ghosts[1]));
+
+	// Pinky (ghost 2): Behaviour Tree con intercepcion en pasillos
+	ghostsControl.push_back(std::make_shared<PinkyController>(ghosts[2]));
+
+	// Clyde/Sue (ghost 3): FSM con estados Chase/WanderCorner/Frightened
+	ghostsControl.push_back(std::make_shared<SueController>(ghosts[3]));
+}
+
+const int NOSCORELIMIT = 10000;
+void Game::run(){
+	int lastScore=gameState.getScore();
+	int framesWithoutChange=0;
+	while(true){
+		if(!nogui)
+			gv->draw(currentMap,gameState);
+		gameState.updatePacman(pacmanControl->getMove(gameState));
+		gameState.updateEaten();
+		std::vector<Move> ghostMoves;
+		std::transform(ghostsControl.begin(), ghostsControl.end(), std::back_inserter(ghostMoves), [this](const std::shared_ptr<Controller> &ghost) { return ghost->getMove(gameState);});
+		gameState.updateGhosts(ghostMoves);
+		gameState.updateEaten();
+		if(gameState.won()){
+			currentMap=(currentMap+1)%filenames.size();
+			gameState.reset(filenames[currentMap]);
+		}else if(gameState.lost()){
+			if(!nogui){
+				std::cout<<"Aborting because of no progress."<<std::endl;
+				std::cout<<"Final score: "<<lastScore<<std::endl;
+			}else{
+				std::cout<<lastScore<<std::endl;
+			}
+			break;
+		}
+		if(lastScore==gameState.getScore()){
+			framesWithoutChange++;
+		}else{
+			lastScore=gameState.getScore();
+			framesWithoutChange=0;
+		}
+		if(framesWithoutChange==NOSCORELIMIT){
+			
+			if(!nogui){
+				std::cout<<"Aborting because of no progress."<<std::endl;
+				std::cout<<"Final score: "<<lastScore<<std::endl;
+			}else{
+				std::cout<<lastScore<<std::endl;
+			}
+			break;
+		}
+		if(!quick)
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	}
+
+
+}
