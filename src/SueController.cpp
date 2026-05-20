@@ -29,6 +29,7 @@ bool ClydeNearTransition::isValid(const GameState& gs) {
     auto pacPos = gs.getMaze().getNodePos(gs.getPacmanPos());
     float dist = euclid2(myPos, pacPos);
     return dist <= CLYDE_DISTANCE;  
+}
 
 std::shared_ptr<FSMState> ClydeNearTransition::getNextState() { return _next; }
 
@@ -170,7 +171,7 @@ ClydeStateMachine::ClydeStateMachine(std::shared_ptr<Character> _character)
     wanderState->addTransition(std::make_shared<ClydeEdibleTransition>(frightenedState));
     wanderState->addTransition(std::make_shared<ClydeFarTransition>(chaseState));
 
-    //  cuando ya no es comestible -> volver a chase
+    //  cuando ya no es comestible -> volver a chas
     frightenedState->addTransition(std::make_shared<ClydeNotEdibleTransition>(chaseState));
 
     states.push_back(chaseState);
