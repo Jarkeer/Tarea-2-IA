@@ -44,9 +44,7 @@ Move UtilityPacmanController::getFarthestMove(const GameState& game,std::pair<in
     return best;
 }
 
-// Curvas de Utilidad
-
-// 
+// Curvas de Utilidad 
 float UtilityPacmanController::utilityEscape(const GameState& game, int g) const 
 {
     if (game.isGhostEdible(g)) return 0.0f; 

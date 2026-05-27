@@ -19,7 +19,7 @@ PinkyController::PinkyController(std::shared_ptr<Character> character)
     filter2->addAction(std::make_shared<PinkyScatter>());
     root->addChild(filter2);
 
-    // Rama 3 (NUEVA): si Pacman esta en pasillo -> interceptar
+    // Rama 3: si Pacman esta en pasillo -> interceptar
     auto filter3 = std::make_shared<Filter>();
     filter3->addCondition(std::make_shared<PacmanInHallway>());
     filter3->addAction(std::make_shared<PinkyIntercept>());

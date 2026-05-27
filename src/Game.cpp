@@ -31,7 +31,7 @@ filenames{"mazes/a.txt","mazes/b.txt","mazes/c.txt","mazes/d.txt"},
 gameState(filenames[currentMap]),
 gv(std::make_unique<GameView>(std::vector<std::string>{"images/maze-a.png","images/maze-b.png","images/maze-c.png","images/maze-d.png"})) {
 
-	// Ms. Pac-Man con controlador Utility (el mas optimo disponible)
+	// Ms. Pac-Man con controlador Utility 
 	auto pacman=std::make_shared<MsPacMan>(gameState.getMaze().getPacmanStart());
 	gameState.addPacMan(pacman);
 	pacmanControl=std::make_shared<UtilityPacmanController>(pacman);

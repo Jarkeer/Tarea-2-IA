@@ -3,9 +3,9 @@
 #include <iostream>
 
 
-const float CLYDE_DISTANCE = 8.0f * 8.0f;  // usando distancia al cuadrado
+const float CLYDE_DISTANCE = 8.0f * 8.0f;  
 
-//////// Transiciones ////////
+// Transiciones
 
 ClydeFarTransition::ClydeFarTransition(std::shared_ptr<FSMState> next)
     : _next(next) {}
@@ -60,7 +60,7 @@ bool ClydeNotEdibleTransition::isValid(const GameState& gs) {
 std::shared_ptr<FSMState> ClydeNotEdibleTransition::getNextState() { return _next; }
 
 
-//////// Estados ////////
+// Estados //
 
 // perseguir a Pacman moviendose al vecino mas cercano
 ClydeChaseState::ClydeChaseState(std::shared_ptr<Character> _character)
@@ -154,7 +154,7 @@ Move ClydeFrightenedState::onUpdate(const GameState& game) {
 ClydeFrightenedState::~ClydeFrightenedState() {}
 
 
-//////// ClydeStateMachine ////////
+// ClydeStateMachine 
 
 ClydeStateMachine::ClydeStateMachine(std::shared_ptr<Character> _character)
     : FiniteStateMachine(_character) {
@@ -196,7 +196,7 @@ Move ClydeStateMachine::update(const GameState& gs) {
 ClydeStateMachine::~ClydeStateMachine() {}
 
 
-//////// SueController ////////
+// SueController
 
 SueController::SueController(std::shared_ptr<Character> character)
     : Controller(character),
